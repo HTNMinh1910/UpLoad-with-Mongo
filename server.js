@@ -1,20 +1,16 @@
 const express = require('express')
-
 //import { engine } from 'express-handlebars';
 const expressHbs = require('express-handlebars');
-
 const app = express()
-
 const mongoose = require('mongoose');
-const uri = 'mongodb+srv://minh:<password>@atlascluster.2ul3dwj.mongodb.net/list?retryWrites=true&w=majority';
-
+const uri = 'mongodb+srv://minh:vMExZqKigeWnxbVO@atlascluster.2ul3dwj.mongodb.net/list?retryWrites=true&w=majority';
 const labModel = require('./labModel');
 
-app.get('/lab', async (req, res) => {
+app.get('/', async (req, res) => {
   await mongoose.connect(uri).then(console.log('Ket noi DB thanh cong!'));
 
   try {
-    const labs = await labModel.find({tailieu: 2});
+    const lab = await labModel.find();
 
     // labModel.updateMany();
     // labModel.updateOne({ten: 'Lab 3'}, {ten: 'Lab 3 - 2023'})
@@ -22,8 +18,8 @@ app.get('/lab', async (req, res) => {
     // labModel.deleteOne({ten: 'Lab 4'});
 
 
-    console.log(labs.toString());
-    res.send(labs);
+    console.log(lab.toString());
+    res.send(lab);
   } catch (err) {
     console.log(err);
   }
@@ -34,11 +30,9 @@ app.get('/add_lab', async (req, res) => {
 
   let lab = new labModel ({
     tieude : 'lab 7',
-    url: 'linktailieu.com'
-    //tailieu: 2
+    url: 'linktailieu.com',
+    tailieu: 2
   });
-
-  //lab.tailieu = 2;
 
 
   try {
@@ -54,27 +48,23 @@ app.get('/add_lab', async (req, res) => {
   }
 });
 
-//app.engine('.hbs', ExpressHandlebars());
 app.engine('.hbs', expressHbs.engine({ 
   extname: "hbs", 
   defaultLayout: 'main', 
   layoutsDir: "views/layouts/" }));
-
-//app.engine( "hbs", engine({ extname: "hbs", defaultLayout: false, layoutsDir: "views/layouts/", }) );
-
 app.set('view engine', '.hbs');
 app.set('views', './views');
 
-app.get('/', (req, res) => {
-  res.render('home', {
-    layout: 'main',
-    //showContentMaytinh: false,
+// app.get('/', (req, res) => {
+//   res.render('home', {
+//     layout: 'main',
+//     //showContentMaytinh: false,
 
-    helpers: {
-      foo() { return 'foo. CP17305 - server Android'; }
-    }
-  });
-});
+//     helpers: {
+//       foo() { return 'foo. CP17305 - server Android'; }
+//     }
+//   });
+// });
 
 app.get('/maytinh', (req, res) => {
   res.render('emptyView', {
