@@ -132,10 +132,12 @@ app.put('/edit/:id', (req, res, next) => {
     }).catch(next)
 })
 
-app.post('/info/:id', (req, res, next) => {
-    StaffModel.findById({_id: req.params.id}).then((edit) => {
-        edit = edit ? edit.toObject() : edit;
-        res.render(edit)
+app.get('/:id', (req, res, next) => {
+    StaffModel.findById({_id: req.params.id}).then(edit => {
+        // edit = edit.map(edit =>edit.toObject())
+        edit = edit ? edit.toObject() : edit
+        console.log(edit);
+        res.redirect('listNV',{edit})
     }).catch(next)
 })
 

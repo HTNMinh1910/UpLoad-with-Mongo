@@ -3,9 +3,10 @@ const mongoose = require('mongoose');
 const staffSchema = new mongoose.Schema({
     name: {
         type: String,
+        require:  true,
     },
     age: {
-        type: String
+        type: Number,
     },
     salary: {
         type: Number,
