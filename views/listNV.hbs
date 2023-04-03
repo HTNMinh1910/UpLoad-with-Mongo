@@ -1,24 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <title>Bootstrap Example</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-</head>
-<body>
-
 <div class="container">
-  <a href="/add_nv"style="margin-left: 20%;">Add</a>
+  <button type="submit" style="margin-left: 20%" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAdd" data-bs-whatever="@getbootstrap">Add</button>
   <input class="form-control" id="myInput" type="text" placeholder="Search..">
   <br>
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
+        <th scope="col">STT</th>
         <th>Name</th>
-        <th>Address</th>
+        <th>Age</th>
         <th>Salary</th>
         <th>Tool</th>
       </tr>
@@ -26,19 +15,19 @@
     <tbody id="myTable">
       {{#each data}}
       <tr>
-        <td>{{this.ten}}</td>
-        <td>{{this.diachi}}</td>
-        <td>{{this.luong}}</td>
+        <td scope="row">{{sum @index 1}}</td>
+        <td>{{this.name}}</td>
+        <td>{{this.age}}</td>
+        <td>{{this.salary}}</td>
         <td style="width: 20%;">
-          <a href="/edit"style="margin-left: 20%;">Edit</a>
-          <a href="/delete" style="margin-left: 30%;">Delete</a>
+          <a href="/info/{{this._id}}"style="margin-left: 20%;" data-bs-toggle="modal" data-bs-target="#modalEdit" data_id="{{this._id}}">Edit</a>
+          <a href="#" style="margin-left: 30%;" data-bs-toggle="modal" data-bs-target="#modalDelete" data_id="{{this._id}}">Delete</a>
 			  </td>
 			</tr>
       {{/each}}
     </tbody>
   </table>
   </div>
-
 <script>
 $(document).ready(function(){
   $("#myInput").on("keyup", function() {
@@ -50,5 +39,129 @@ $(document).ready(function(){
 });
 </script>
 
-</body>
-</html>
+<!-- Modal -->
+<div class="modal fade" id="modalDelete" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Confirm delete</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        You sure you want to delete this item ?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <form  method="post" name="formDel">
+          <button type="button" id="btn_delete" class="btn btn-primary">Save changes</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const modalDelete = document.getElementById('modalDelete')
+  modalDelete.addEventListener('show.bs.modal', event => {
+    const button = event.relatedTarget
+    const idDel = button.getAttribute('data_id')
+    const formDel = document.forms['formDel'];
+    const btn_delete = document.getElementById('btn_delete');
+    btn_delete.onclick = function () {
+          formDel.action = `/delete/${idDel}?_method=DELETE`;
+          formDel.submit();
+      }
+  })
+</script>
+
+<div class="modal fade" id="modalAdd" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Users</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="post" name="formAdd">
+          <div class="mb-3">
+            <label for="recipient-name" class="col-form-label">Name:</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+          </div>
+          <div class="mb-3">
+            <label for="recipient-name" class="col-form-label">Age:</label>
+            <input type="number" class="form-control" id="age" name="age" required>
+          </div>
+          <div class="mb-3">
+            <label for="recipient-name" class="col-form-label">Salary:</label>
+            <input type="number" class="form-control" id="salary" name="salary" required>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" id="btn_send" class="btn btn-primary">Send</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const modalAddEdit = document.getElementById('modalAdd');
+  modalAddEdit.addEventListener('show.bs.modal', event => {
+    const button = event.relatedTarget;
+    const btn_send = document.getElementById('btn_send');
+    const formAdd = document.forms['formAdd'];
+    btn_send.onclick = function () {
+        formAdd.action = '/add_nv/'
+        formAdd.submit();
+      }
+  })
+</script>
+
+
+<div class="modal fade" id="modalEdit" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Users</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        {{!-- {{#each data_edit}} --}}
+        <form method="post" name="formEdit">
+          <div class="mb-3">
+            <label for="recipient-name" class="col-form-label">Name:</label>
+            <input type="text" class="form-control" id="name" name="name" value="{{data_edit.name}}" required>
+          </div>
+          <div class="mb-3">
+            <label for="recipient-name" class="col-form-label">Age:</label>
+            <input type="number" class="form-control" id="age" name="age" value="{{this.age}}" required>
+          </div>
+          <div class="mb-3">
+            <label for="recipient-name" class="col-form-label">Salary:</label>
+            <input type="number" class="form-control" id="salary" name="salary" value="{{this.salary}}" required>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" id="btn_send" class="btn btn-primary">Send</button>
+          </div>
+        </form>
+        {{!-- {{/each}} --}}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const modalEdit = document.getElementById('modalEdit')
+  modalEdit.addEventListener('show.bs.modal', event => {
+    const button = event.relatedTarget
+    const idEdit = button.getAttribute('data_id')
+    const formEdit = document.forms['formEdit'];
+    const btn_delete = document.getElementById('btn_delete');
+    btn_delete.onclick = function () {
+          formEdit.action = `/delete/${idEdit}?_method=PUT`;
+          formEdit.submit();
+      }
+  })
+</script>

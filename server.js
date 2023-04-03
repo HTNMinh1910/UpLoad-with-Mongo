@@ -1,6 +1,6 @@
 // const express = require('express')
 // //import { engine } from 'express-handlebars';
-const expressHbs = require('express-handlebars');
+// const expressHbs = require('express-handlebars');
 // const app = express()
 // const mongoose = require('mongoose');
 // const uri = 'mongodb+srv://minh:vMExZqKigeWnxbVO@atlascluster.2ul3dwj.mongodb.net/list?retryWrites=true&w=majority';
@@ -90,63 +90,62 @@ const expressHbs = require('express-handlebars');
 // Part 2 mongoDB example
 const express = require('express')
 const app = express()
+const expressHbs = require('express-handlebars')
+const body = require('body-parser')
+const method_override = require("method-override")
+const path = require('path')
 const port = 3000
-const mongoose = require('mongoose');
-// const uri = 'mongodb+srv://minh:vMExZqKigeWnxbVO@atlascluster.2ul3dwj.mongodb.net/list?retryWrites=true&w=majority';
-const NhanVienModel = require('./NhanVienModel');
-const db = require('./db');
+const StaffModel = require('./StaffModel')
+const db = require('./db')
 
 db.connect()
+app.use(method_override("_method"))
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.engine('.hbs', expressHbs.engine({ 
     extname: "hbs", 
     defaultLayout: 'main', 
-    layoutsDir: "views/layouts/" }));
+    layoutsDir: "views/layouts/",
+    helpers: {
+        sum: (a, b) => a + b
+      }}));
   app.set('view engine', '.hbs');
-  app.set('views', './views');
+  app.set('views', path.join(__dirname +'/views'));
 
-app.get('/', (req, res) => {
-    // await mongoose.connect(uri);
-    // console.log('Ket noi DB thanh cong');
-    // let arrNV = await NhanVienModel.find({});
-    NhanVienModel.find({}).then(data => {
+app.get('/', (req, res, next) => {
+    StaffModel.find({}).then(data => {
         data = data.map(data=>data.toObject());
         res.render('listNV', {data})
         console.log(data);
-    })
-})
-
-app.get('/delete', (req, res, next) => {
-    NhanVienModel.deleteOne({diachi:'HN'}).then(() => {
-        res.redirect('back')
     }).catch(next)
 })
 
-app.get('/edit', (req, res, next) => {
-    NhanVienModel.updateOne({ten:'Minh'},{ten: 'HTNMINH'}).then(() => {
-        res.redirect('back')
+app.delete('/delete/:id', (req, res, next) => {
+    StaffModel.deleteOne({_id: req.params.id}).then(() => {
+        res.redirect('/')
     }).catch(next)
 })
 
-
-app.get('/add_nv', async (req, res) => {
-    // await mongoose.connect(uri);
-
-    // console.log('Ket noi DB thanh cong');
-    let nvMoi = new NhanVienModel({
-        ten: 'Nguyen Thao Trang',
-        diachi: 'HN',
-        luong: 12
-    })
-    nvMoi.save().then(()=>{
-        res.redirect('back')
-    });
-    // let kq = await NhanVienModel.insertMany(nvMoi);
-    // console.log(kq);
-    // let arrNV = await NhanVienModel.find();
-    // res.send(arrNV);
+app.put('/edit/:id', (req, res, next) => {
+    StaffModel.updateOne({_id: req.params.id}, req.body).then(() => {
+        res.redirect('/')
+    }).catch(next)
 })
 
+app.post('/info/:id', (req, res, next) => {
+    StaffModel.findById({_id: req.params.id}).then((edit) => {
+        edit = edit ? edit.toObject() : edit;
+        res.render(edit)
+    }).catch(next)
+})
 
+app.post('/add_nv', (req, res, next) => {
+    let new_staff = new StaffModel(req.body)
+    console.log(new_staff)
+    new_staff.save().then(()=>{
+        res.redirect('/')
+    }).catch(next)
+})
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
